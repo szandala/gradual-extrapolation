@@ -113,6 +113,7 @@ def plot_example(input,
         plt.title("input image", fontsize=6)
         plt.subplot(batch_size, 2, 2 + 2 * i)
         _imsc(saliency[i], interpolation="bilinear", cmap="jet")
+
         cls_name = IMAGENET_CLASSES[class_i].split(",")[0]
         plt.title("{} for {}".format(method, cls_name), fontsize=6)
 
