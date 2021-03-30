@@ -6,7 +6,6 @@ import torch.nn as nn
 import os
 import glob
 from torchvision import transforms
-from torchvision import models
 import matplotlib.pyplot as plt
 import cv2
 
@@ -33,11 +32,6 @@ def read_images_2_batch():
     return input_batch
 
 
-def prepare_network(arch):
-    model = models.__dict__[arch](pretrained=True)
-    model.eval()
-    return model
-
 
 def get_category_IDs(model, input_batch):
     percentage = nn.Softmax(dim=1)
@@ -51,7 +45,7 @@ def get_category_IDs(model, input_batch):
 
 
 
-def imsc(img, *args,  interpolation="lanczos", **kwargs):
+def _imsc(img, *args,  interpolation="lanczos", **kwargs):
     r"""Rescale and displays an image represented as a img.
 
     The function scales the img :attr:`im` to the [0 ,1] range.
@@ -77,7 +71,7 @@ def imsc(img, *args,  interpolation="lanczos", **kwargs):
         img = img - lim[0]  # also makes a copy
         img.mul_(1 / (lim[1] - lim[0]))
         img = torch.clamp(img, min=0, max=1)
-        print(img.shape)
+        # print(img.shape)
         bitmap = img.expand(*img.shape).permute(1, 2, 0).cpu().numpy()
         handle = plt.imshow(
             bitmap, *args, interpolation=interpolation, **kwargs)
@@ -112,14 +106,14 @@ def plot_example(input,
         class_i = category_id[i % len(category_id)]
         plt.subplot(batch_size, 2, 1 + 2 * i)
         plt.tight_layout(pad=0.5)
-        imsc(input[i])
+        _imsc(input[i])
 
         plt.rcParams['axes.titley'] = 1.0    # y is in axes-relative co-ordinates.
         plt.rcParams['axes.titlepad'] = 1  # pad is in points...
 
         plt.title("input image", fontsize=6)
         plt.subplot(batch_size, 2, 2 + 2 * i)
-        imsc(saliency[i], interpolation="bilinear", cmap="jet")
+        _imsc(saliency[i], interpolation="bilinear", cmap="jet")
         cls_name = IMAGENET_CLASSES[class_i].split(",")[0]
         plt.title("{} for {}".format(method, cls_name), fontsize=6)
         # plt.title("{} for {} ({})".format(
