@@ -32,7 +32,6 @@ def read_images_2_batch():
     return input_batch
 
 
-
 def get_category_IDs(model, input_batch):
     percentage = nn.Softmax(dim=1)
     output = percentage(model(input_batch))
@@ -116,8 +115,6 @@ def plot_example(input,
         _imsc(saliency[i], interpolation="bilinear", cmap="jet")
         cls_name = IMAGENET_CLASSES[class_i].split(",")[0]
         plt.title("{} for {}".format(method, cls_name), fontsize=6)
-        # plt.title("{} for {} ({})".format(
-        #     method, cls_name, class_i), fontsize=8)
 
     # Save figure if path is specified.
     if save_path:

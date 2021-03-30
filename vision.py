@@ -1,7 +1,6 @@
 from torchray.attribution.grad_cam import grad_cam
 from torchray.attribution.excitation_backprop import contrastive_excitation_backprop
 from torchray.attribution.deconvnet import deconvnet
-from torchray.attribution.guided_backprop import guided_backprop
 
 from utils import read_images_2_batch, get_category_IDs, plot_example
 from gradual_extrapolation import GradualExtrapolator
@@ -49,6 +48,7 @@ if __name__ == "__main__":
             category_id, save_path="output_Contr-Excit-BP.jpg")
 
     print("Processing Gradual Contrastive Excitation BP...")
+    # we just need to process images to feed hooks
     model(input_batch)
     saliency_gradual_contr_excitation = GradualExtrapolator.get_smooth_map(saliency_contr_excitation)
     plot_example(input_batch, saliency_gradual_contr_excitation, "Gradual Contrastive Excitation BP",
