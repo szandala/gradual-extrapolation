@@ -8,6 +8,8 @@ import glob
 from torchvision import transforms
 import matplotlib.pyplot as plt
 import cv2
+from torchray.benchmark.datasets import IMAGENET_CLASSES
+
 
 crop = transforms.Compose([
     transforms.ToPILImage(),
@@ -29,17 +31,30 @@ def read_images_2_batch():
     input_batch = torch.stack([normalize(crop(image))
                                for image in input_images])
 
-    return input_batch
+    return input_batch, image_files
 
 
-def get_category_IDs(model, input_batch):
+def get_category_IDs(model, input_batch, filenames):
     percentage = nn.Softmax(dim=1)
     output = percentage(model(input_batch))
 
     listed_all_outputs = [[(i, val)
                            for i, val in enumerate(o.tolist())] for o in output]
+
     best_fits = [sorted(sing_out, key=lambda o: o[1])[-1]
                  for sing_out in listed_all_outputs]
+
+    # cls_name = IMAGENET_CLASSES[class_i].split(",")[0]
+
+    # choose best 5 classes
+    for i, image_fits in enumerate([sorted(image_results, key=lambda o: o[1], reverse=True)
+                        for image_results in listed_all_outputs]):
+        print(filenames[i])
+        for IDek, probability in image_fits[:5]:
+            cls = IMAGENET_CLASSES[IDek].split(",")[0].strip()
+            print(f"{cls}: {probability:.2f}")
+        print("---")
+
     return [o[0] for o in best_fits]
 
 
@@ -93,7 +108,7 @@ def plot_example(input,
         show_plot (bool, optional): If True, show plot. Default: ``False``.
         save_path (str, optional): Path to save figure to. Default: ``None``.
     """
-    from torchray.benchmark.datasets import IMAGENET_CLASSES
+
 
     if isinstance(category_id, int):
         category_id = [category_id]
@@ -104,7 +119,7 @@ def plot_example(input,
     for i in range(batch_size):
         class_i = category_id[i % len(category_id)]
         plt.subplot(batch_size, 2, 1 + 2 * i)
-        plt.tight_layout(pad=0.5)
+        plt.tight_layout(pad=0.0)
         _imsc(input[i])
 
         plt.rcParams['axes.titley'] = 1.0    # y is in axes-relative co-ordinates.
@@ -125,3 +140,16 @@ def plot_example(input,
             os.makedirs(save_dir)
         ext = os.path.splitext(save_path)[1].strip(".")
         plt.savefig(save_path, format=ext, dpi=300, bbox_inches="tight")
+
+def save_img(img, method, num):
+    with torch.no_grad():
+        plt.clf()
+        plt.axis("off")
+        lim = [img.min(), img.max()]
+        img = img - lim[0]  # also makes a copy
+        img.mul_(1 / (lim[1] - lim[0]))
+        img = torch.clamp(img, min=0, max=1)
+        plt.imshow(img.permute(1, 2, 0).cpu().numpy())
+        m = method.replace(" ", "_")
+        save_path = f"{m}_{num}.jpg"
+        plt.savefig(save_path, format="jpg", dpi=300, bbox_inches="tight")
