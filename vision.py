@@ -48,7 +48,7 @@ def count_nonzero(batch):
 
 
 if __name__ == "__main__":
-    CLIP_INPUT = False
+    CLIP_INPUT = True
     NET = "vgg16"
     layers = {
         "resnet50": ["layer4.2", "layer4.2"],
@@ -61,9 +61,9 @@ if __name__ == "__main__":
 
     # TODO: loop over all common networks
     model = models.__dict__[NET](pretrained=True)
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            print (name)
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print (name)
     model.eval()
     category_id = get_category_IDs(model, input_batch, filenames)
     deconvnet(model, input_batch, category_id)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     saliency_contr_excitation = sum_pixels(saliency_contr_excitation)
 
     if CLIP_INPUT:
-        multiplier = torch.where(saliency_contr_excitation < 0.005, torch.zeros(224, 224), saliency_contr_excitation)
+        multiplier = torch.where(saliency_contr_excitation < 0.001, torch.zeros(224, 224), saliency_contr_excitation)
         print(f"\tPixels above 0: {count_nonzero(multiplier)}")
         for i, img in enumerate(input_batch*multiplier):
             save_img(img, "Contr-Excit-BP", i+1)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     saliency_gradual_contr_excitation = sum_pixels(saliency_gradual_contr_excitation)
 
     if CLIP_INPUT:
-        multiplier = torch.where(saliency_gradual_contr_excitation < 0.001, torch.zeros(224, 224), saliency_gradual_contr_excitation)
+        multiplier = torch.where(saliency_gradual_contr_excitation < 0.00005, torch.zeros(224, 224), saliency_gradual_contr_excitation)
         print(f"\tPixels above 0: {count_nonzero(multiplier)}")
         for i, img in enumerate(input_batch*multiplier):
             save_img(img, "Gradual-Contr-Excit-BP", i+1)

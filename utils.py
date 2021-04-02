@@ -24,6 +24,8 @@ normalize = transforms.Compose([
 
 def read_images_2_batch():
     image_files = glob.glob("./samples/*.jpg")
+    # image_files = glob.glob("./Gradual-Contr-Excit-BP_*.jpg")
+
     image_files.sort()
 
     input_images = [cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
@@ -152,4 +154,4 @@ def save_img(img, method, num):
         plt.imshow(img.permute(1, 2, 0).cpu().numpy())
         m = method.replace(" ", "_")
         save_path = f"{m}_{num}.jpg"
-        plt.savefig(save_path, format="jpg", dpi=300, bbox_inches="tight")
+        plt.savefig(save_path, format="jpg", bbox_inches='tight', pad_inches = 0)
