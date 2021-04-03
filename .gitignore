@@ -1,0 +1,6 @@
+*.jpg
+old/
+venv/
+samples/
+.vscode/
+__pycache__/
