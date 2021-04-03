@@ -5,6 +5,14 @@ We propose an enhancement technique for the Gradient-weighted Class Activation M
 
 ## Usage
 
+```
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+python vision.py
+```
+
 First we have to import GradualExtrapolator class. Next we have to load the model, in this case a pretrained `vgg16` has been chosen and then we have to call the first GradualExtrapolator method to register required hooks in the model.
 With such a prepared model we can perform the classification and, since the actual output is not needed, we can just ignore it. Model execution is followed by using the second GradualExtrapolator method to calculate smooth maps for the processed batch.
 
