@@ -23,7 +23,7 @@ normalize = transforms.Compose([
 
 
 def read_images_2_batch():
-    image_files = glob.glob("./samples/truncated/GEBP/*.jpg")
+    image_files = glob.glob("./samples/*.jpg")
     # image_files = glob.glob("./samples/*.jpg")
     # image_files = glob.glob("./Gradual-Contr-Excit-BP_*.jpg")
 

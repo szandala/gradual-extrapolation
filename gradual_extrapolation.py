@@ -20,6 +20,7 @@ class GradualExtrapolator:
             print("Hooks can only be registered to one model at once. Please use: `prune_old_hooks()`")
             return
 
+        first_layer = True
         for i, layer in enumerate(model.children()):
             if list(layer.children()):
                 GradualExtrapolator.register_hooks(layer, recursive=True)
@@ -27,10 +28,15 @@ class GradualExtrapolator:
                 GradualExtrapolator._hook_handlers.append(
                     layer.register_forward_hook(GradualExtrapolator._excitation_hook)
                 )
-            elif isinstance(layer, Conv2d) and layer.stride > (1, 1):
+            elif isinstance(layer, Conv2d) and layer.stride > (1, 1) and first_layer:
                 GradualExtrapolator._hook_handlers.append(
                     layer.register_forward_hook(GradualExtrapolator._excitation_hook)
                 )
+                first_layer = False
+            # elif isinstance(layer, Conv2d) and layer.stride > (1, 1):
+            #     GradualExtrapolator._hook_handlers.append(
+            #         layer.register_forward_hook(GradualExtrapolator._excitation_hook)
+            #     )
 
     def prune_old_hooks(model):
         if not GradualExtrapolator._hook_handlers:
@@ -43,7 +49,15 @@ class GradualExtrapolator:
     ###############################################
 
     def _upsampling(heatmap, pre_excitations):
+
+
         for e in pre_excitations[::-1]:
+            # print("\n--------------")
+            # print(f"Origin shape: {heatmap.shape}")
+            # print(f"Using shape: {e.shape}")
+            if heatmap.shape[-1] >= e.shape[-1]:
+                # print("skipping")
+                continue
             heatmap = interpolate(
                 heatmap,
                 size=(e.shape[2], e.shape[3]),
@@ -66,8 +80,8 @@ class GradualExtrapolator:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
             return
 
-        # print(f"Searched: {heatmap.shape}")
-        # [print(e.shape) for e in GradualExtrapolator._excitations]
+        print(f"Searched: {heatmap.shape}")
+        [print(e.shape) for e in GradualExtrapolator._excitations]
         # # discarding further layers
         # new_excitations = []
         # for e in GradualExtrapolator._excitations:
